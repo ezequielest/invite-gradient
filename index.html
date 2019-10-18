@@ -306,31 +306,8 @@
     </div>
   </section>
 
-
   <section id="gift" class="gift">
-    <div class="container">
-      <h2 class="section-heading text-center">Lista de regalos</h2>
-      <div class="gift-container">
-        <div class="item available">  
-            Cafetera
-        </div>
-        <div class="item available">  
-          Microondas
-      </div>
-        <div class="item available">  
-            Heladera
-        </div>
-      <div class="item available">  
-          Lavaropas
-      </div>
-      <div class="item available">  
-        Licuadora
-    </div>
-    <div class="item available">  
-      Televisor
-  </div>
-      </div>
-    </div>
+    <gift-list></gift-list>
   </section>
 
   <section class="form" id="asistencia">
@@ -369,6 +346,58 @@
     </div>
   </footer>
 
+  <!-- TEMPLATES-->
+<template id="gift-list-template">
+  <div class="general-gift-list">
+    <div class="container">
+      <h2 class="section-heading text-center">Lista de regalos</h2>
+      <div class="gift-container">
+        <div class="item" v-for="gift in giftList" v-bind:class="{'available': !gift.gifted, 'not-available': gift.gifted}">  
+          <template v-if="gift.gifted">
+            {{gift.description}} - YA LO TIENEN
+          </template>
+          <template v-if="!gift.gifted">
+            {{gift.description}}
+            <button class="btn btn-outline btn-xl" data-toggle="modal" data-target="#giftModal" v-on:click="selectGift(gift)">regalar</button></li>
+          </template>
+           
+        </div>
+      
+      </div>
+    </div>
+  
+    <div id="giftModal" class="modal" tabindex="-1" role="dialog" v-if="giftSelected">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Gracias por ser parte!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <h6>Estas por regalar: {{ giftSelected.description }}</h6>
+            <p>Recorga que tu regalo es para confirmarle a los novios que vos los vas a ayudar con este regalo. Depende de vos como adquirirlo</p>
+            
+              <select id="select" class="form-control" required>
+                <option disabled selected>Quién se lo regala?</option>
+                <option v-for="guest in guests" v-click="selectGuest(guest)">{{ guest.description }}</option>
+              </select>
+              <div class="gift-response"></div>
+            
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="doGift()">Regalar</button>
+            <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/simplycountdown/simplyCountdown.min.js"></script>
@@ -490,58 +519,7 @@
 
   <script>
   Vue.component('gift-list', {
-    props:['nose'],
-    template: 
-    `
-    <div class="general-gift-list">
-      <div class="container">
-        <h2 class="section-heading text-center">Lista de regalos</h2>
-        <div class="gift-container">
-          <div class="item" v-for="gift in giftList" v-bind:class="{'available': !gift.gifted, 'not-available': gift.gifted}">  
-            <v-template v-if="gift.gifted">
-              {{gift.giftDescription}} - YA LO TIENEN
-            </v-template>
-            <v-template v-if="!gift.gifted">
-              {{gift.giftDescription}}
-              <button class="btn btn-outline btn-xl" data-toggle="modal" data-target="#giftModal" v-on:click="selectGift(gift)">regalar</button></li>
-            </v-template>
-             
-          </div>
-        
-        </div>
-      </div>
-    
-      <div id="giftModal" class="modal" tabindex="-1" role="dialog" v-if="giftSelected">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <h5 class="modal-title">Gracias por ser parte!</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-
-            <div class="modal-body">
-              <h6>Estas por regalar: {{ giftSelected.description }}</h6>
-              <p>Recorga que tu regalo es para confirmarle a los novios que vos los vas a ayudar con este regalo. Depende de vos como adquirirlo</p>
-              
-                <select id="select" class="form-control" required>
-                  <option disabled selected>Quién se lo regala?</option>
-                  <option v-for="guest in guests" v-click="selectGuest(guest)">{{ guest.description }}</option>
-                </select>
-                <div class="gift-response"></div>
-              
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-primary" v-on:click="doGift()">Regalar</button>
-              <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-            </div>
-            
-          </div>
-        </div>
-      </div>
-    </div>`,
+    template: `#gift-list-template`,
     data: function() {
       return {
         giftList: null,
@@ -552,14 +530,12 @@
     },
     methods: {
       selectGift: function(gift) {
+
         this.giftSelected = {
-          id: gift.giftId,
-          description: gift.giftDescription
+          id: gift._id,
+          description: gift.description
         }
 
-        console.log(this.giftSelected)
-
-        this.getGuest();
       },
       getGuest: function(){
         axios
@@ -581,21 +557,22 @@
           guest: this.guestSelected,
           gift: this.giftSelected
         }
+        console.log(payload)
         axios
-          .put('http://localhost:3000/gift-list', payload)
+          .put('http://localhost:3000/user/gift/5da3981977c76d0855d36c6d', payload)
             .then(res => {
-              this.giftList = res.data.response;
-              $('#giftModal').modal('hide')
+              this.giftList = res.data.response.gifts;
+              $('#giftModal').modal('hide');
             })
       }
     },
     computed: {},
     mounted () {
     axios
-      .get('http://localhost:3000/gift-list')
+      .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
       .then(res => {
-        this.giftList = res.data.response
-        console.log(res.data.response) 
+        this.giftList = res.data.response.gifts;
+        this.guests = res.data.response.guests;
       })
     }
   })

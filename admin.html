@@ -95,43 +95,50 @@
 
 <div id="app">
   <section class="table-gift-admin bg-primary text-center" id="">
-  <div class="container">
-      <div class="row">
-        <div class="col-md-12 mx-auto">
-          <guest-list></guest-list>
-        </div>
-      </div>
-  </div>
-</section>
-
-  
-  <section class="table-gift-admin bg-primary text-center" id="tableGift">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12 mx-auto">
-  
-          <button class="btn" data-toggle="modal" data-target="#giftAdministrationModal" v-on:click="getGifts()">Administrar mis regalos</button>
-          <div class="gift-doing-table">
-            <h3>Regalos realizados por los invitados</h3>
-            <gift-list show-gifted="gifted"></gift-list>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="table-gift-admin bg-primary text-center" id="">
     <div class="container">
         <div class="row">
           <div class="col-md-12 mx-auto">
-            <h3>Regalos sin confirmar</h3>
-            <gift-list show-gifted="noGifted"></gift-list>
+            <guest-list></guest-list>
+          </div>
         </div>
-      </div>
     </div>
   </section>
 
+  <gift-list-container></gift-list-container>
+
 </div>
+
+<!-- TEMPLATE LIST CONTAINER -->
+<template id="gift-list-container">
+  <div>
+    <section class="table-gift-admin bg-primary text-center" id="tableGift">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 mx-auto">
+
+            <button class="btn" data-toggle="modal" data-target="#giftAdministrationModal" v-on:click="getGifts()">Administrar mis regalos</button>
+            <div class="gift-doing-table">
+              <h3>Regalos realizados por los invitados</h3>
+              <gift-list  v-bind:gifts="giftedList" show-gifted="gifted" @update-gift-list="updateGiftList"></gift-list>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-gift-admin bg-primary text-center" id="">
+      <div class="container">
+          <div class="row">
+            <div class="col-md-12 mx-auto">
+              <h3>Regalos sin confirmar</h3>
+              <gift-list v-bind:gifts="noGiftedList" show-gifted="noGifted" @update-gift-list="updateGiftList"></gift-list>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
 
 <!-- GUEST LIST TEMPLATE -->
 <template id="guest-table">
@@ -141,12 +148,16 @@
     <thead class="thead-light">
       <tr>
         <th>Invitados</th>
+        <th>Cantidad</th>
+        <th>Confirmado</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="guest in guestsList">
         <td>{{ guest.description }}</td>
+        <td>{{ guest.cant }}</td>
+        <td>{{ guest.confirmed }}</td>
         <td>
           <button class="btn" data-toggle="modal" data-target="#guestModal" v-on:click="selectGuest(guest)">Editar</button>
           <button class="btn" v-on:click="deleteGuest(guest)">Eliminar</button>
@@ -158,16 +169,24 @@
   <div id="guestModal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-
         <div class="modal-header">
           <h5 class="modal-title">Agregar nuevo invitado</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-
         <div class="modal-body">
-          <input type="text" placeholder="Descripcion" value="" v-model="guestDescription">
+          <div class="row">
+            <div class="col-7">
+              <input type="text" class="form-control" placeholder="Descripcion" value="" v-model="guestDescription">
+            </div>
+            <div class="col-3">
+              <input type="text" class="form-control" step="1" placeholder="Cantidad" value="" v-model="guestCant" disabled> 
+            </div>
+            <div class="col-2"> 
+              <button v-on:click="sumar()">+</button><button v-on:click="restar()">-</button>
+            </div>
+          </div>
           <div class="gift-response"></div>
         </div>
         <div class="modal-footer">
@@ -202,9 +221,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="gift in giftedList">
-                <td>{{ gift.giftDescription }}</td>
-                <td>{{ gift.guestDescription }}</td>
+              <tr v-for="gift in gifts">
+                <td>{{ gift.description }}</td>
+                <td>{{ gift.gifted_by.description }}</td>
                 <td>
                   <button class="btn" v-on:click="freeGift(gift)">Liberar</button>
                 </td>
@@ -222,8 +241,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="gift in noGiftedList">
-              <td>{{ gift.giftDescription }}</td>
+            <tr v-for="gift in gifts">
+              <td>{{ gift.description }}</td>
               <td>
                 <button class="btn" v-on:click="deleteGift(gift)">Eliminar</button>
               </td>
@@ -231,11 +250,8 @@
           </tbody>
         </table>
     </template>
-    
-    
 
-
-    <div id="giftAdministrationModal" class="modal" tabindex="-1" role="dialog">
+    <!--<div id="giftAdministrationModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
   
@@ -257,7 +273,7 @@
                 </div>
                 <div class="col-md-6">          
                   <h6>Mis regalos</h6>
-                  <div class="row" v-for="gift in giftsList">
+                  <div class="row" v-if="giftsList" v-for="gift in giftsList">
                     <div class="col-md-8">{{ gift.giftDescription}} </div>
                     <div class="col-md-4"><button class="btn">+</button></div>
                   </div>
@@ -274,7 +290,7 @@
           
         </div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 <!-- END:  GIFT LIST TEMPLATE -->
@@ -325,10 +341,70 @@
     });
   </script>
 
+<script>
+Vue.component('gift-list-container', {
+    template: '#gift-list-container',
+    data: function() {
+      return {
+        giftsList: null,
+        giftedList: null,
+        noGiftedList: null
+      }
+    },
+    methods: {
+      getGuest: function(){
+        axios
+        .get('http://localhost:3000/guest')
+        .then(res => {
+          this.guestsList = res.data.response
+          console.log(res.data.response) 
+        })
+      },
+      getGiftList: function() {
+        axios
+        .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
+        .then(res => {
+
+          this.giftsList = res.data.response.gifts
+
+          this.giftedList = this.giftsList.filter((giftList)=>{
+            return giftList.gifted === true;
+          })  
+
+          this.noGiftedList = this.giftsList.filter((giftList)=>{
+            return giftList.gifted === false;
+          })
+
+        })
+      },
+      updateGiftList(e) {
+        this.getGiftList();
+      }
+    },
+    mounted () {
+      axios
+        .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
+        .then(res => {
+
+          this.giftsList = res.data.response.gifts
+
+          this.giftedList = this.giftsList.filter((giftList)=>{
+            return giftList.gifted === true;
+          })  
+
+          this.noGiftedList = this.giftsList.filter((giftList)=>{
+            return giftList.gifted === false;
+          })
+
+        })
+      }
+  })
+</script>
+
 <script src="./components/admin/guest-list.component.js"></script>
 <script src="./components/admin/gift-list.component.js"></script>
 <script>
-  new Vue({ el: '#app' })
+  var app = new Vue({ el: '#app' })
 </script>
 </body>
 </html>

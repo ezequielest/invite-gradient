@@ -4,6 +4,7 @@ Vue.component('guest-list', {
       return {
         guestsList: null,
         guestDescription: "",
+        guestCant: 1,
         guestSelected: null,
         isEditing: false
       }
@@ -11,20 +12,21 @@ Vue.component('guest-list', {
     methods: {
       getGuest: function(){
         axios
-        .get('http://localhost:3000/guest')
+        .get('http://localhost:3000/guest/5da3981977c76d0855d36c6d')
         .then(res => {
-          this.guestsList = res.data.response
+          this.guestsList = res.data.response.guests
           console.log(res.data.response) 
         })
       },
       addGuest: function(){
         var payload = {
-            description: this.guestDescription
+            description: this.guestDescription,
+            cant: this.guestCant
         }
         axios
-        .post('http://localhost:3000/guest', payload)
+        .put('http://localhost:3000/user/5da3981977c76d0855d36c6d/guest', payload)
         .then(res => {
-          this.guestsList = res.data.response
+          this.guestsList = res.data.response.guests
           console.log(res.data.response) 
         })
       },
@@ -46,6 +48,14 @@ Vue.component('guest-list', {
           console.log(res.data.response) 
         })
       },
+      sumar: function(){
+        if (this.guestCant == 10) return false;
+        this.guestCant++;
+      },
+      restar: function(){
+        if (this.guestCant == 1) return false;
+        this.guestCant--;
+      },
       cancelGuest: function(){
           this.isEditing = false;
           this.guestDescription = "";
@@ -61,10 +71,11 @@ Vue.component('guest-list', {
     computed: {},
     mounted () {
     axios
-      .get('http://localhost:3000/guest')
+      .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
       .then(res => {
-        this.guestsList = res.data.response
         console.log(res.data.response) 
+        this.guestsList = res.data.response.guests
+        
       })
     }
   })

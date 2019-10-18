@@ -1,9 +1,8 @@
 Vue.component('gift-list', {
-    props: ['showGifted'],
+    props: ['showGifted','gifts'],
     template: '#gift-list',
     data: function() {
       return {
-        giftsList: null,
         giftDescription: "",
         giftSelected: null,
         isEditing: false,
@@ -21,7 +20,7 @@ Vue.component('gift-list', {
         .post('http://localhost:3000/gift-list', payload)
         .then(res => {
           this.giftsList = res.data.response
-          console.log(res.data.response) 
+          console.log(this.giftList) 
         })
       },
       selectGift: function(gift){
@@ -41,16 +40,29 @@ Vue.component('gift-list', {
           this.giftDescription = "";
         })
       },
-
+      freeGift: function(gift) {
+        var payload = {
+            id: gift._id,
+            description: gift.description
+        }
+        axios
+        .put('http://localhost:3000/user/gift/free/5da3981977c76d0855d36c6d', payload)
+        .then(res => {
+          console.log(res.data.response)
+          this.giftsList = res.data.response.gifts
+          this.$emit('update-gift-list', this.giftList)
+        })
+      },
       cancelGift: function(){
           this.isEditing = false;
           this.giftDescription = "";
       },
-      deleteGift: function(Gift){
+      deleteGift: function(gift){
         axios
-        .delete('http://localhost:3000/gift-list' + gift.id)
+        .delete('http://localhost:3000/user/5da3981977c76d0855d36c6d/gift/' + gift._id)
         .then(res => {
-          this.giftsList = res.data.response
+          //this.giftsList = res.data.response
+          this.$emit('update-gift-list')
         })
       },
       getGifts: function(){
@@ -60,23 +72,5 @@ Vue.component('gift-list', {
           this.allGifts = res.data.response
         })
       }
-    },
-    computed: {},
-    mounted () {
-    axios
-      .get('http://localhost:3000/gift-list')
-      .then(res => {
-        this.giftsList = res.data.response
-
-        this.giftedList = this.giftsList.filter((giftList)=>{
-            return giftList.gifted === 1;
-        })  
-
-        this.noGiftedList = this.giftsList.filter((giftList)=>{
-          return giftList.gifted !== 1;
-        })
-
-        this.giftsList = res.data.response
-      })
     }
   })
