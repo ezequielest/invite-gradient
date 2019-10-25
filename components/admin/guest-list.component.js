@@ -3,6 +3,10 @@ Vue.component('guest-list', {
     data: function() {
       return {
         guestsList: null,
+        countGuest: {
+          confirmed: 0,
+          withoutConfirm: 0
+        },
         guestDescription: "",
         guestCant: 1,
         guestSelected: null,
@@ -15,7 +19,7 @@ Vue.component('guest-list', {
         .get('http://localhost:3000/guest/5da3981977c76d0855d36c6d')
         .then(res => {
           this.guestsList = res.data.response.guests
-          console.log(res.data.response) 
+          console.log('guestlist ', this.guestsList)
         })
       },
       addGuest: function(){
@@ -27,7 +31,8 @@ Vue.component('guest-list', {
         .put('http://localhost:3000/user/5da3981977c76d0855d36c6d/guest', payload)
         .then(res => {
           this.guestsList = res.data.response.guests
-          console.log(res.data.response) 
+          $('#guestModal').modal('hide');
+          
         })
       },
       selectGuest: function(guest){
@@ -75,6 +80,14 @@ Vue.component('guest-list', {
       .then(res => {
         console.log(res.data.response) 
         this.guestsList = res.data.response.guests
+
+        this.countGuest.confirmed = this.guestsList.filter((el) => {
+          return el.confirmed == true
+        }).length
+
+        this.countGuest.withoutConfirm= this.guestsList.filter((el) => {
+          return el.confirmed == false
+        }).length
         
       })
     }

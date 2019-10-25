@@ -1,6 +1,6 @@
-Vue.component('gift-list', {
+Vue.component('gift-list-table', {
     props: ['showGifted','gifts'],
-    template: '#gift-list',
+    template: '#gift-list-table',
     data: function() {
       return {
         giftDescription: "",
@@ -8,7 +8,7 @@ Vue.component('gift-list', {
         isEditing: false,
         giftedList: null,
         noGiftedList: null,
-        allGifts: null
+        giftsDefault: null
       }
     },
     methods: {     
@@ -63,13 +63,6 @@ Vue.component('gift-list', {
         .then(res => {
           //this.giftsList = res.data.response
           this.$emit('update-gift-list')
-        })
-      },
-      getGifts: function(){
-        axios
-        .get('http://localhost:3000/gifts')
-        .then(res => {
-          this.allGifts = res.data.response
         })
       }
     }
