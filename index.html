@@ -546,7 +546,9 @@
         giftList: null,
         guests: null,
         guestSelected: null,
-        giftSelected: null
+        giftSelected: null,
+        userId: '5eb30e8b22a92d43fcfeaf5a',
+        baseURL: 'http://localhost:3000'
       }
     },
     methods: {
@@ -558,9 +560,9 @@
         }
 
       },
-      getGuest: function(){
+      getGuest: function() {
         axios
-        .get('http://localhost:3000/guest')
+        .get(`${this.baseURL}/guest/userId/${this.userId}`)
         .then(res => {
           this.guests = res.data.response
           console.log(res.data.response) 
@@ -580,7 +582,7 @@
         }
         console.log(payload)
         axios
-          .put('http://localhost:3000/user/gift/5da3981977c76d0855d36c6d', payload)
+          .put(`${this.baseURL}/gift/userId/`, payload)
             .then(res => {
               this.giftList = res.data.response.gifts;
               $('#giftModal').modal('hide');
@@ -589,13 +591,17 @@
     },
     computed: {},
     mounted () {
-    axios
-      .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
-      .then(res => {
-        this.giftList = res.data.response.gifts;
-        this.guests = res.data.response.guests;
+      axios
+        .get(`${this.baseURL}/gift/userId/${this.userId}`)
+        .then(res => {
+          console.log(res)
+          this.giftList = res.data.response;
+          $('#giftModal').modal('hide');
       })
+
+      this.getGuest();
     }
+
   })
 
   new Vue({ el: '#gift' })
