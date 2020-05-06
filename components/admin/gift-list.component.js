@@ -20,7 +20,7 @@ Vue.component('gift-list-table', {
         .post('http://localhost:3000/gift-list', payload)
         .then(res => {
           this.giftsList = res.data.response
-          console.log(this.giftList) 
+          console.log('gift list ',this.giftList) ;
         })
       },
       selectGift: function(gift){
