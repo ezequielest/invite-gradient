@@ -560,7 +560,7 @@
         }
 
       },
-      getGuest: function(){
+      getGuest: function() {
         axios
         .get(`${this.base}/guest/userId/${this.userID}`)
         .then(res => {
@@ -601,20 +601,21 @@
     },
     computed: {},
     mounted () {
-    axios
-      .get(`${this.base}/gift/userId/${this.userID}`)
+      axios
+        .get(`${this.base}/gift/userId/${this.userID}`)
+        .then(res => {
+          console.log('gift list ',res)
+          this.giftList = res.data.response;
+        })
+
+      axios
+      .get(`${this.base}/guest/userId/${this.userID}`)
       .then(res => {
         console.log('gift list ',res)
-        this.giftList = res.data.response;
+        this.guests = res.data.response;
       })
-
-    axios
-    .get(`${this.base}/guest/userId/${this.userID}`)
-    .then(res => {
-      console.log('gift list ',res)
-      this.guests = res.data.response;
-    })
     }
+
   })
 
   new Vue({ el: '#gift' })
