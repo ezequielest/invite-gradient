@@ -388,9 +388,9 @@
             <h6>Estas por regalar: {{ giftSelected.description }}</h6>
             <p>Recorga que tu regalo es para confirmarle a los novios que vos los vas a ayudar con este regalo. Depende de vos como adquirirlo</p>
             
-              <select id="select" class="form-control" required>
+              <select id="select" ref="selectingGuest" class="form-control" required>
                 <option disabled selected>Quién se lo regala?</option>
-                <option v-for="guest in guests" v-click="selectGuest(guest)">{{ guest.description }}</option>
+                <option v-for="guest in guests" :value="guest._id">{{ guest.description }}</option>
               </select>
               <div class="gift-response"></div>
             
@@ -546,7 +546,9 @@
         giftList: null,
         guests: null,
         guestSelected: null,
-        giftSelected: null
+        giftSelected: null,
+        base: 'http://localhost:3000/api',
+        userID: '5eb6cb2a0229ff0a7cfd6708'
       }
     },
     methods: {
@@ -560,29 +562,39 @@
       },
       getGuest: function(){
         axios
-        .get('http://localhost:3000/guest')
+        .get(`${this.base}/guest/userId/${this.userID}`)
         .then(res => {
-          this.guests = res.data.response
-          console.log(res.data.response) 
+          console.log('gift list ',res)
+          this.guests = res.data.response;
         })
       },
-      gift: function(id) {
+      getGifts: function(id) {
         axios
-          .post('http://localhost:3000/gift-list', payload)
+        .get(`${this.base}/gift/userId/${this.userID}`)
+        .then(res => {
+          this.giftList = res.data.response;
+        })
       },
+  
       selectGuest: function(guest){
         this.guestSelected = guest;
+        console.log('guest selected ', this.guestSelected)
       },
+
       doGift: function() {
+        console.log(this.$refs.selectingGuest)
         var payload = {
-          guest: this.guestSelected,
-          gift: this.giftSelected
+          giftedBy: this.$refs.selectingGuest.value,
+          gift: this.giftSelected.id,
+          cant: 1,
+          userID: this.userID,
+          isMoney: false
         }
-        console.log(payload)
+
         axios
-          .put('http://localhost:3000/user/gift/5da3981977c76d0855d36c6d', payload)
+          .post(`${this.base}/gift/toGift`, payload)
             .then(res => {
-              this.giftList = res.data.response.gifts;
+              this.getGifts()
               $('#giftModal').modal('hide');
             })
       }
@@ -590,11 +602,18 @@
     computed: {},
     mounted () {
     axios
-      .get('http://localhost:3000/user/5da3981977c76d0855d36c6d')
+      .get(`${this.base}/gift/userId/${this.userID}`)
       .then(res => {
-        this.giftList = res.data.response.gifts;
-        this.guests = res.data.response.guests;
+        console.log('gift list ',res)
+        this.giftList = res.data.response;
       })
+
+    axios
+    .get(`${this.base}/guest/userId/${this.userID}`)
+    .then(res => {
+      console.log('gift list ',res)
+      this.guests = res.data.response;
+    })
     }
   })
 
