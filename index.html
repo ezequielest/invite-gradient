@@ -359,11 +359,11 @@
     <div class="container">
       <h2 class="section-heading text-center">Lista de regalos</h2>
       <div class="gift-container">
-        <div class="item" v-for="gift in giftList" v-bind:class="{'available': !gift.gifted, 'not-available': gift.gifted}">  
-          <template v-if="gift.gifted">
+        <div class="item" v-for="gift in giftList" v-bind:class="{'available': !gift.alreadyDone, 'not-available': gift.alreadyDone}">  
+          <template v-if="gift.alreadyDone">
             {{gift.description}} - YA LO TIENEN
           </template>
-          <template v-if="!gift.gifted">
+          <template v-if="!gift.alreadyDone">
             {{gift.description}}
             <button class="btn btn-outline btn-xl" data-toggle="modal" data-target="#giftModal" v-on:click="selectGift(gift)">regalar</button></li>
           </template>
