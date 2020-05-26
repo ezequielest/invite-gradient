@@ -1,6 +1,6 @@
 @import "./mixins";
 
-.form {
+section.asistencia {
     padding: 40px 0;
     text-align: center;
     color: fade-out(white, .2);
@@ -9,7 +9,7 @@
 
     .container {
         border: solid;
-        padding: 40px 0;
+        padding: 150px 0;
         form {
             padding: 20px;
     

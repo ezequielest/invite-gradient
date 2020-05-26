@@ -316,34 +316,8 @@
     <gift-list></gift-list>
   </section>
 
-  <section class="form" id="asistencia">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-8 mx-auto">
-          <h2 class="section-heading">Confirma tu asistencia</h2>
-          <p></p>
-          <form id="formAssistence" action="" name="contact" role="form">
-              <div class="form-group">
-                <label for="">Nombre y Apellido (*)</label>
-                <input id="name" name="name" type="text" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="">Teléfono</label>
-                <input id="phone" name="phone" type="text" class="form-control">
-              </div>
-              <div class="form-group">
-                <label for="">Mensaje (*)</label>
-                <textarea id="message" name="message" cols="30" rows="5"  class="form-control" required></textarea >
-              </div>
-              <div>
-                (*) campos obligatorios.
-              </div>
-              <button class="btn btn-outline btn-xl js-scroll-trigger">Enviar</button>
-          </form>
-          <div class="rta"></div>
-        </div>
-      </div>
-    </div>
+  <section id="asistencia" class="asistencia">
+    <guest-list></guest-list>
   </section>
 
   <footer>
@@ -351,7 +325,7 @@
       <p>&copy; INVITE 2019 | <a href="http://www.invite.com.ar/">invite.com.ar</a></p>
     </div>
   </footer>
-  </div><!--website-->
+</div><!--website-->
 
   <!-- TEMPLATES-->
 <template id="gift-list-template">
@@ -406,6 +380,58 @@
   </div>
 </template>
 
+<!-- CONFIRM TEMPLATE -->
+<template id="guest-list">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <h2 class="section-heading">Confirma tu asistencia</h2>
+        <p></p>
+        <div name="contact" role="form">
+          <div class="form-group">
+            <label for="">Buscate en la lista, escribi tu codigo y dale enter.</label>
+            <input id="name" name="name" v-model="name" v-on:keyup.enter="searchGuest()" type="text" class="form-control" required>
+            <ul v-if="guestList">
+              <li v-for="guest in guestList" v-on:click="selectGuest(guest)">
+                {{ guest.description }}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="rta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="guestModal" class="modal" tabindex="-1" role="dialog" v-if="guestSelected">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmación de asistencias</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <h6>{{ giftSelected.description }}</h6>
+          
+          <input type="text" class="form-control" v-model="cant">
+
+          <div class="gift-response"></div>
+          
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" v-on:click="confirmGuest()">Confirmar asistencia</button>
+          <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</template>
+
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/simplycountdown/simplyCountdown.min.js"></script>
   <script src="vendor/owl-carousel/owl.carousel.min.js"></script>
@@ -415,6 +441,8 @@
   <script src="./js/vue.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
+  <script src="./components/public/guest-list.component.js"></script>
+  <script src="./components/public/gift-list.component.js"></script>
   
   
   <!-- Custom scripts for this template -->
@@ -536,89 +564,6 @@
         items: 1
       });
     });
-  </script>
-
-  <script>
-  Vue.component('gift-list', {
-    template: `#gift-list-template`,
-    data: function() {
-      return {
-        giftList: null,
-        guests: null,
-        guestSelected: null,
-        giftSelected: null,
-        base: 'http://localhost:3000/api',
-        userID: '5ebde0bca0957904d7007b6f'
-      }
-    },
-    methods: {
-      selectGift: function(gift) {
-
-        this.giftSelected = {
-          id: gift._id,
-          description: gift.description
-        }
-
-      },
-      getGuest: function() {
-        axios
-        .get(`${this.base}/guest/userId/${this.userID}`)
-        .then(res => {
-          console.log('gift list ',res)
-          this.guests = res.data.response;
-        })
-      },
-      getGifts: function(id) {
-        axios
-        .get(`${this.base}/gift/userId/${this.userID}`)
-        .then(res => {
-          this.giftList = res.data.response;
-        })
-      },
-  
-      selectGuest: function(guest){
-        this.guestSelected = guest;
-        console.log('guest selected ', this.guestSelected)
-      },
-
-      doGift: function() {
-        console.log(this.$refs.selectingGuest)
-        var payload = {
-          giftedBy: this.$refs.selectingGuest.value,
-          gift: this.giftSelected.id,
-          cant: 1,
-          userID: this.userID,
-          isMoney: false
-        }
-
-        axios
-          .post(`${this.base}/gift/toGift`, payload)
-            .then(res => {
-              this.getGifts()
-              $('#giftModal').modal('hide');
-            })
-      }
-    },
-    computed: {},
-    mounted () {
-      axios
-        .get(`${this.base}/gift/userId/${this.userID}`)
-        .then(res => {
-          console.log('gift list ',res)
-          this.giftList = res.data.response;
-        })
-
-      axios
-      .get(`${this.base}/guest/userId/${this.userID}`)
-      .then(res => {
-        console.log('gift list ',res)
-        this.guests = res.data.response;
-      })
-    }
-
-  })
-
-  new Vue({ el: '#gift' })
   </script>
 </body>
 
