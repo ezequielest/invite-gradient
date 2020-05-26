@@ -1048,6 +1048,10 @@ section.asistencia .container form button {
   }
 }
 
+section.asistencia .modal {
+  color: #222;
+}
+
 section.gift {
   background-color: #eeeeee;
 }

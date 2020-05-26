@@ -5,7 +5,9 @@ Vue.component('guest-list', {
         name: null,
         base: 'http://localhost:3000/api/guest/',
         userId: '5ebde0bca0957904d7007b6f',
-        guestList: []
+        guestList: [],
+        guestSelected: null,
+        cantConfirmed: 0
       }
     },
     methods: {
@@ -24,13 +26,15 @@ Vue.component('guest-list', {
         console.log('guest selected ', guest)
       },
       confirmGuest: function() {
+        this.guestSelected.cantConfirmed = this.cantConfirmed;
         var payload = {
-            guest: this.guestSelected.id,
-            cant: 2,
-            user: this.userId
+            guest: this.guestSelected
         }
+
+        console.log(payload);
+
         axios
-        .put(`${this.base}/confirm`, payload)
+        .put(`${this.base}confirm/public`, payload)
         .then(res => {
           console.log(res);
           //this.guestsList = res.data.response

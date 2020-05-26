@@ -382,51 +382,54 @@
 
 <!-- CONFIRM TEMPLATE -->
 <template id="guest-list">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 mx-auto">
-        <h2 class="section-heading">Confirma tu asistencia</h2>
-        <p></p>
-        <div name="contact" role="form">
-          <div class="form-group">
-            <label for="">Buscate en la lista, escribi tu codigo y dale enter.</label>
-            <input id="name" name="name" v-model="name" v-on:keyup.enter="searchGuest()" type="text" class="form-control" required>
-            <ul v-if="guestList">
-              <li v-for="guest in guestList" v-on:click="selectGuest(guest)">
-                {{ guest.description }}
-              </li>
-            </ul>
+  <div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <h2 class="section-heading">Confirma tu asistencia</h2>
+          <p></p>
+          <div name="contact" role="form">
+            <div class="form-group">
+              <label for="">Buscate en la lista, escribi tu codigo y dale enter.</label>
+              <input id="name" name="name" v-model="name" v-on:keyup.enter="searchGuest()" type="text" class="form-control" required>
+              <ul v-if="guestList">
+                <li v-for="guest in guestList">
+                  <button data-toggle="modal" data-target="#guestModal" v-on:click="selectGuest(guest)">{{ guest.description }}</button>
+                </li>
+              </ul>
+            </div>
           </div>
+          <div class="rta"></div>
         </div>
-        <div class="rta"></div>
       </div>
     </div>
-  </div>
 
-  <div id="guestModal" class="modal" tabindex="-1" role="dialog" v-if="guestSelected">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
+    <div id="guestModal" class="modal" tabindex="-1" role="dialog" v-if="guestSelected">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
 
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmación de asistencias</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmación de asistencias</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
 
-        <div class="modal-body">
-          <h6>{{ giftSelected.description }}</h6>
+          <div class="modal-body">
+            <h6>{{ guestSelected.description }}</h6>
+            <h6>Cantidad de invitados: {{ guestSelected.cant }}</h6>
+            Vas a confirmar:
+            <input type="text" max="{{ guestSelected.cant }}" class="form-control" v-model="cantConfirmed">
+
+            <div class="gift-response"></div>
+            
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="confirmGuest()">Confirmar asistencia</button>
+            <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          </div>
           
-          <input type="text" class="form-control" v-model="cant">
-
-          <div class="gift-response"></div>
-          
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" v-on:click="confirmGuest()">Confirmar asistencia</button>
-          <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        </div>
-        
       </div>
     </div>
   </div>
